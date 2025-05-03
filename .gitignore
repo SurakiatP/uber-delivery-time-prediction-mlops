@@ -1,0 +1,12 @@
+/venv
+.python-version
+/config/gdrive_sa.json
+/config/secrets.yaml
+.env
+monitoring/grafana/
+mlruns/
+*.csv
+__pycache__/
+mlartifacts/
+.dvc/config.local
+.dvc/tmp/*

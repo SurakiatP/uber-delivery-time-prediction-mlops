@@ -1,0 +1,49 @@
+stages:
+  prepare:
+    cmd: python src/data_pipeline/fetch_orders.py
+    deps:
+      - src/data_pipeline/fetch_orders.py
+      - data/raw/uberdrives.csv
+    outs:
+      - data/processed/cleaned_uberdrives.csv
+
+  fetch_lat_lon:
+    cmd: python src/data_pipeline/fetch_lat_lon.py
+    deps:
+      - src/data_pipeline/fetch_lat_lon.py
+      - data/processed/cleaned_uberdrives.csv
+    outs:
+      - data/processed/cleaned_uberdrives_with_coords.csv
+
+  fetch_weather:
+    cmd: python src/data_pipeline/fetch_weather.py
+    deps:
+      - src/data_pipeline/fetch_weather.py
+      - data/processed/cleaned_uberdrives_with_coords.csv
+    outs:
+      - data/processed/uber_with_weather.csv
+
+  fetch_traffic:
+    cmd: python src/data_pipeline/fetch_traffic.py
+    deps:
+      - src/data_pipeline/fetch_traffic.py
+      - data/processed/uber_with_weather.csv
+    outs:
+      - data/processed/uber_with_weather_traffic.csv
+
+  featurize:
+    cmd: python src/preprocessing/feature_engineering.py
+    deps:
+      - src/preprocessing/feature_engineering.py
+      - data/processed/uber_with_weather_traffic.csv
+    outs:
+      - data/processed/model_ready_dataset.csv
+
+  train:
+    cmd: python src/modeling/train_model.py
+    deps:
+      - src/modeling/train_model.py
+      - data/processed/model_ready_dataset.csv
+      - config/params.yaml
+    outs:
+      - models/best_model.pkl

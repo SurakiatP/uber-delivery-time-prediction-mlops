@@ -1,0 +1,102 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/data_pipeline/fetch_orders.py
+    deps:
+    - path: data/raw/uberdrives.csv
+      hash: md5
+      md5: b0302a2710a1743d4d0fa84880cf6e8d
+      size: 86369
+    - path: src/data_pipeline/fetch_orders.py
+      hash: md5
+      md5: bd68da4c5a794dc8501616548f535ec4
+      size: 1078
+    outs:
+    - path: data/processed/cleaned_uberdrives.csv
+      hash: md5
+      md5: 858af03e52febba729ab9c86c1c07421
+      size: 100991
+  fetch_lat_lon:
+    cmd: python src/data_pipeline/fetch_lat_lon.py
+    deps:
+    - path: data/processed/cleaned_uberdrives.csv
+      hash: md5
+      md5: 858af03e52febba729ab9c86c1c07421
+      size: 100991
+    - path: src/data_pipeline/fetch_lat_lon.py
+      hash: md5
+      md5: 530cc9e3b8682cd7245aeb56a93722a3
+      size: 1731
+    outs:
+    - path: data/processed/cleaned_uberdrives_with_coords.csv
+      hash: md5
+      md5: 8537d4041b78b1f5a4c8e15b1a345151
+      size: 123606
+  fetch_weather:
+    cmd: python src/data_pipeline/fetch_weather.py
+    deps:
+    - path: data/processed/cleaned_uberdrives_with_coords.csv
+      hash: md5
+      md5: 8537d4041b78b1f5a4c8e15b1a345151
+      size: 123606
+    - path: src/data_pipeline/fetch_weather.py
+      hash: md5
+      md5: 3b23d38b1670214b5677b1c57948001d
+      size: 1820
+    outs:
+    - path: data/processed/uber_with_weather.csv
+      hash: md5
+      md5: de9d5b7445072967e5ac3b2c4b332602
+      size: 146888
+  fetch_traffic:
+    cmd: python src/data_pipeline/fetch_traffic.py
+    deps:
+    - path: data/processed/uber_with_weather.csv
+      hash: md5
+      md5: de9d5b7445072967e5ac3b2c4b332602
+      size: 146888
+    - path: src/data_pipeline/fetch_traffic.py
+      hash: md5
+      md5: 1c3263d81523e93a0411e4a63fb1fdc9
+      size: 740
+    outs:
+    - path: data/processed/uber_with_weather_traffic.csv
+      hash: md5
+      md5: 461c4c3977efcb4c970e8acd69b571bd
+      size: 152617
+  featurize:
+    cmd: python src/preprocessing/feature_engineering.py
+    deps:
+    - path: data/processed/uber_with_weather_traffic.csv
+      hash: md5
+      md5: 461c4c3977efcb4c970e8acd69b571bd
+      size: 152617
+    - path: src/preprocessing/feature_engineering.py
+      hash: md5
+      md5: efc07b90ddf66dfab795ca7d2822d2b3
+      size: 4035
+    outs:
+    - path: data/processed/model_ready_dataset.csv
+      hash: md5
+      md5: 7b9443db9369394d6b448500cfedad85
+      size: 84398
+  train:
+    cmd: python src/modeling/train_model.py
+    deps:
+    - path: config/params.yaml
+      hash: md5
+      md5: b542f76ef6fe64222b00b69346323568
+      size: 667
+    - path: data/processed/model_ready_dataset.csv
+      hash: md5
+      md5: 7b9443db9369394d6b448500cfedad85
+      size: 84398
+    - path: src/modeling/train_model.py
+      hash: md5
+      md5: 30c4dfb0a570acc09f35244dec56fbd4
+      size: 3450
+    outs:
+    - path: models/best_model.pkl
+      hash: md5
+      md5: 07bfbb92b8daf35dcbdf5b324d3d6cc6
+      size: 1170900
