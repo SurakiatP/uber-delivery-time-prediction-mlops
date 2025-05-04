@@ -6,7 +6,7 @@ train:
 
 model:
   experiment_name: "DeliveryTimePrediction"
-  tracking_uri: "http://127.0.0.1:5000"
+  tracking_uri: "http://host.docker.internal:5000"
   target_column: "TRIP_DURATION_MINUTES" 
 
 xgboost:

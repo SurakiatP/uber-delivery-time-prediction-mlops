@@ -1,7 +1,7 @@
 /venv
 .python-version
-/config/gdrive_sa.json
-/config/secrets.yaml
+.config/gdrive_sa.json
+.config/secrets.yaml
 .env
 monitoring/grafana/
 mlruns/

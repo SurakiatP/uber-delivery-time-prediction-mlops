@@ -83,18 +83,21 @@ stages:
   train:
     cmd: python src/modeling/train_model.py
     deps:
-    - path: config/params.yaml
+    - path: .config/params.yaml
       hash: md5
-      md5: b542f76ef6fe64222b00b69346323568
-      size: 667
+      md5: dbeb4e50f4bbc93a03b12fa07b402cdb
+      size: 678
+      isexec: true
     - path: data/processed/model_ready_dataset.csv
       hash: md5
       md5: 7b9443db9369394d6b448500cfedad85
       size: 84398
+      isexec: true
     - path: src/modeling/train_model.py
       hash: md5
-      md5: 30c4dfb0a570acc09f35244dec56fbd4
-      size: 3450
+      md5: ca132f04f93b513409f1b172a1b06613
+      size: 3465
+      isexec: true
     outs:
     - path: models/best_model.pkl
       hash: md5

@@ -44,6 +44,6 @@ stages:
     deps:
       - src/modeling/train_model.py
       - data/processed/model_ready_dataset.csv
-      - config/params.yaml
+      - .config/params.yaml
     outs:
       - models/best_model.pkl
