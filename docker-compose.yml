@@ -115,6 +115,7 @@ services:
       - ./airflow/dags:/opt/airflow/dags
       - ./src:/app/src
       - ./.config/gdrive_sa.json:/app/.config/gdrive_sa.json
+      - ./.config:/app/.config 
     command: webserver
 
   airflow-scheduler:
@@ -123,12 +124,12 @@ services:
     restart: always
     depends_on:
       - airflow-webserver
-    environment:
-      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
-      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+    env_file:
+      - .env
     volumes:
       - .:/app
       - ./airflow/dags:/opt/airflow/dags
       - ./src:/app/src
       - ./.config/gdrive_sa.json:/app/.config/gdrive_sa.json
+      - ./.config:/app/.config 
     command: scheduler
