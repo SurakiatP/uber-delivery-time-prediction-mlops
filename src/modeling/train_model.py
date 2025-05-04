@@ -9,9 +9,10 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
 import joblib
+import tempfile
 
 DATA_PATH = "data/processed/model_ready_dataset.csv"
-PARAMS_PATH = "config/params.yaml"
+PARAMS_PATH = ".config/params.yaml"
 
 # Load params.yaml
 with open(PARAMS_PATH, "r") as f:
@@ -29,7 +30,6 @@ def evaluate_model(y_true, y_pred):
     return mae, rmse
 
 def train_and_log_model(model_name, model_class, param_dist):
-    # Load dataset
     X_train, X_test, y_train, y_test = load_data(
         DATA_PATH,
         target_column=params['model']['target_column'],
@@ -37,7 +37,6 @@ def train_and_log_model(model_name, model_class, param_dist):
         random_state=params['train']['random_state']
     )
 
-    # Hyperparameter search
     search = RandomizedSearchCV(
         model_class(),
         param_distributions=param_dist,
@@ -53,29 +52,28 @@ def train_and_log_model(model_name, model_class, param_dist):
     y_pred = best_model.predict(X_test)
     mae, rmse = evaluate_model(y_test, y_pred)
 
-    # Log everything to MLflow
-    with mlflow.start_run(run_name=f"{model_name}_experiment"):
+    with mlflow.start_run(run_name=f"{model_name}_experiment") as run:
         mlflow.log_param("model_type", model_name)
         mlflow.log_params(search.best_params_)
         mlflow.log_metric("MAE", mae)
         mlflow.log_metric("RMSE", rmse)
-        mlflow.sklearn.log_model(best_model, "model")
 
-    print(f"[+] {model_name} Best MAE: {mae:.4f}, RMSE: {rmse:.4f}")
-    
-    os.makedirs("models", exist_ok=True)
-    joblib.dump(best_model, "models/best_model.pkl")
+        # Save & log model artifact
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            model_path = os.path.join(tmp_dir, "best_model.pkl")
+            joblib.dump(best_model, model_path)
+            mlflow.log_artifact(model_path, artifact_path="model")
 
-    print("Expected columns:", X_train.columns.tolist())
+        print(f"[+] {model_name} Best MAE: {mae:.4f}, RMSE: {rmse:.4f}")
 
+        os.makedirs("models", exist_ok=True)
+        joblib.dump(best_model, "models/best_model.pkl")
 
 
 if __name__ == "__main__":
-    # Setup MLflow experiment
     mlflow.set_tracking_uri(params['model']['tracking_uri'])
     mlflow.set_experiment(params['model']['experiment_name'])
 
-    # Prepare parameter grids
     xgb_param_dist = {
         "n_estimators": params['xgboost']['n_estimators'],
         "learning_rate": params['xgboost']['learning_rate'],
@@ -92,11 +90,8 @@ if __name__ == "__main__":
         "subsample": params['lightgbm']['subsample']
     }
 
-    # Train and Log Models
     print("[*] Training XGBoost...")
     train_and_log_model("XGBoost", XGBRegressor, xgb_param_dist)
 
     print("[*] Training LightGBM...")
     train_and_log_model("LightGBM", LGBMRegressor, lgbm_param_dist)
-
-    
