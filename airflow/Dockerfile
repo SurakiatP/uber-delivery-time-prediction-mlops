@@ -6,4 +6,6 @@ RUN apt-get update && apt-get install -y git libpq-dev gcc
 
 USER airflow
 
-RUN pip install --no-cache-dir dvc[gdrive] psycopg2-binary mlflow
+WORKDIR /app
+
+RUN pip install --no-cache-dir dvc[gdrive] psycopg2-binary mlflow xgboost lightgbm
