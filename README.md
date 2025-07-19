@@ -1,4 +1,6 @@
 # Uber Delivery Time Prediction with MLOps
+> LinkedIn Post => https://www.linkedin.com/posts/surakiat-kansa-ard-171942351_machinelearning-mlops-dataengineering-activity-7325073161790627840-SlB3?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFfhzmUB4WlIO47UV21HFYwE3cHBLvtpy4A
+
 This repository provides an end-to-end MLOps solution for predicting Uber delivery times, combining advanced data engineering, real-time inference, automated retraining, and monitoring using cutting-edge tools and best practices in the industry.
 
 ## Overview
